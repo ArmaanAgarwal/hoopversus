@@ -104,7 +104,7 @@ const TIMES=[30,60,90,120,180,240,300,360,420,480,600,720,900];
 function fillTimes(def){ const s=$('timeSel'); s.innerHTML=''; TIMES.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=fmt(t); s.appendChild(o); }); s.value=TIMES.includes(def)?def:300; }
 let libCat='All', libQ='';
 const RANKED=new Set(['top30','21k','30k','steals','blocks','assists','rebounds','threes','tripdub','games','playoff-pts','allstar13','fifty-pt']);
-const JEOP_CATS=['champs','mvp-year','fmvp-year','draft1','roy','scoring-year','runnerup','reb-year','ast-year','arenas','abbr','franchise-scorers','mip','lakers-retired','celtics-retired','states','dunk','threept','nicknames','countries','lottery-2025','awards-2025','awards-2024','awards-2023'];
+const JEOP_CATS=['champs','mvp-year','fmvp-year','draft1','roy','scoring-year','runnerup','reb-year','ast-year','arenas','abbr','franchise-scorers','mip','lakers-retired','celtics-retired','states','dunk','threept','nicknames','countries','lottery-2025','awards-2025','awards-2024','awards-2023','asg-mvp-year','6moy-year','dpoy-year','colleges','jerseys','title-count','lottery-2003','lottery-2019','lottery-2023'];
 let gtype='race';
 const GT_DEFAULT_T={race:null,feud:180,jeop:600};
 function setGtype(g){ gtype=g; document.querySelectorAll('#gtypes .gt').forEach(b=>b.classList.toggle('on',b.dataset.g===g));
@@ -112,7 +112,7 @@ function setGtype(g){ gtype=g; document.querySelectorAll('#gtypes .gt').forEach(
   if(g==='feud'&&!RANKED.has(selected)){ selected='top30'; }
   const q=QUIZZES.find(x=>x.id===selected); fillTimes(GT_DEFAULT_T[g]||(q&&q.t)||300); renderLib(); }
 document.querySelectorAll('#gtypes .gt').forEach(b=>b.onclick=()=>setGtype(b.dataset.g));
-const CATS=['All','Teams','Champions','Awards','Records','Draft','Tables','Lists','Mine'];
+const CATS=['All','Teams','Champions','Awards','Records','Draft','Tables','Lists','Decades','Mine'];
 function renderChips(){ $('libChips').innerHTML=CATS.map(c=>`<button type="button" class="${libCat===c?'on':''}" data-c="${c}">${c}</button>`).join('');
   $('libChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{ libCat=b.dataset.c; renderLib(); }); }
 function renderLib(){
@@ -246,8 +246,14 @@ window.addEventListener('beforeunload',()=>{ if(chan){ try{ chan.untrack(); }cat
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function buildJeop(){
   const pool=shuffle(JEOP_CATS.map(id=>QUIZZES.find(q=>q.id===id)).filter(q=>q&&q.layout==='clued'&&parseItems(q).length>=5)).slice(0,5);
-  const cats=pool.map(q=>{ const its=shuffle(parseItems(q)).slice(0,5); return {title:q.title,cells:its.map((it,i)=>({clue:it.clue,label:it.label,keys:it.keys,v:(i+1)*200}))}; });
-  return {id:'jeop',title:'Jeopardy',desc:'Pick a square. Both of you see the clue; first correct answer takes the points. Whoever scores picks next.',layout:'jeop',cats};
+  // difficulty: year clues -> older is harder; otherwise later in the list is harder. Pick 5 spread from easy to hard.
+  const cats=pool.map(q=>{ const all=parseItems(q); const n=all.length;
+    const diff=(it,i)=>{ const y=parseInt(it.clue,10); return (y>=1946&&y<=2030)?(2030-y):i; };
+    const sorted=all.map((it,i)=>({it,d:diff(it,i)})).sort((x,y)=>x.d-y.d).map(x=>x.it);
+    const picks=[0.08,0.3,0.5,0.7,0.92].map(p=>{ const lo=Math.max(0,Math.floor((p-0.08)*n)), hi=Math.min(n-1,Math.floor((p+0.08)*n)); return sorted[lo+Math.floor(Math.random()*(hi-lo+1))]; });
+    const seen=new Set(); const cells=[]; picks.forEach((it,i)=>{ let k=sorted.indexOf(it); while(seen.has(k)) k=(k+1)%n; seen.add(k); cells.push({clue:sorted[k].clue,label:sorted[k].label,keys:sorted[k].keys,v:(i+1)*200}); });
+    return {title:q.title,cells}; });
+  return {id:'jeop',title:'Jeopardy',desc:'Pick a square. Both of you see the clue; first correct answer takes the points. Low values are easier, high values are harder. Whoever scores picks next.',layout:'jeop',cats};
 }
 $('btnStart').onclick=()=>{
   const quiz=pickQuiz(); const dur=+$('timeSel').value;

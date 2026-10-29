@@ -249,7 +249,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);
 .lib{gap:9px;padding:2px 4px 2px 2px}
 .q{position:relative;border-radius:12px;padding:10px 12px 10px 14px;background:linear-gradient(180deg,#141b34,#10162c);transition:transform .1s ease,border-color .15s ease,box-shadow .15s ease}
 .q::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c,var(--muted));opacity:.8}
-.q[data-cat=Teams]{--c:#3d8bff}.q[data-cat=Champions]{--c:#ffd166}.q[data-cat=Awards]{--c:#b678ff}.q[data-cat=Records]{--c:#36d17c}.q[data-cat=Draft]{--c:#ff7a1a}.q[data-cat=Tables]{--c:#ff4d4d}.q[data-cat=Lists]{--c:#4dd6ff}.q[data-cat=Mine]{--c:#8e97b3}
+.q[data-cat=Teams]{--c:#3d8bff}.q[data-cat=Champions]{--c:#ffd166}.q[data-cat=Awards]{--c:#b678ff}.q[data-cat=Records]{--c:#36d17c}.q[data-cat=Draft]{--c:#ff7a1a}.q[data-cat=Tables]{--c:#ff4d4d}.q[data-cat=Lists]{--c:#4dd6ff}.q[data-cat=Decades]{--c:#ff9ecb}.q[data-cat=Mine]{--c:#8e97b3}
 .q:hover{transform:translateY(-1px);border-color:#3a4a78;box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .q.on{border-color:var(--orange);background:linear-gradient(180deg,rgba(255,122,26,.16),rgba(255,122,26,.06)),#141b34;box-shadow:0 0 0 1px var(--orange),0 8px 24px rgba(255,122,26,.15)}
 .q.on::after{content:'✓';position:absolute;right:10px;top:8px;color:var(--orange);font-weight:800;font-family:var(--display);font-size:18px}
@@ -285,6 +285,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);
 .verdict h1{letter-spacing:.02em}
 .vs .led{text-shadow:0 0 24px currentColor}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:14px 0 6px;letter-spacing:.06em;text-transform:uppercase}
+.q .d{display:none}
+.q.on .d,.q:hover .d{display:-webkit-box}
+.q{padding:9px 12px 9px 14px}
+.q .n{font-size:17px}
+.gt span{display:none}
+.gt.on span{display:block}
+.gt{padding:10px 12px 10px 16px}
+.lib{max-height:58vh}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -445,6 +453,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:14px 0 6px;le
 <script src="quizzes3.js"></script>
 <script src="quizzes4.js"></script>
 <script src="quizzes5.js"></script>
+<script src="quizzes6.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
