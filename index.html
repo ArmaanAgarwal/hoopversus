@@ -161,6 +161,39 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .chips button.on{border-color:var(--orange);color:var(--orange)}
 .q .d{color:var(--muted);font-size:12px;line-height:1.3;font-family:var(--body)}
 .qdesc{font-size:14px;color:var(--fg);max-width:70ch}
+
+/* game types */
+.gtypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:560px){.gtypes{grid-template-columns:1fr}}
+.gt{text-align:left;text-transform:none;letter-spacing:0;font-family:var(--body);font-size:12px;display:flex;flex-direction:column;gap:3px;padding:10px 12px;background:var(--bg2);color:var(--muted);line-height:1.3}
+.gt b{font-family:var(--display);font-size:18px;color:var(--fg);letter-spacing:.03em;text-transform:uppercase}
+.gt.on{border-color:var(--orange);background:rgba(255,122,26,.12)}
+/* shadows (opponent's hidden answers) */
+.sq td.a.shadow,.tile.shadow{background:var(--away-soft);box-shadow:inset 0 0 0 1px rgba(255,77,77,.35)}
+.tile.shadow .a::after,.sq td.a.shadow::after{content:'';display:block;height:10px;border-radius:4px;background:rgba(255,77,77,.35);width:70%}
+/* feud */
+.feud{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+.fr{display:flex;align-items:center;gap:10px;background:var(--tile);border-radius:6px;padding:8px 10px;min-height:40px;border:1px solid var(--line)}
+.fr .rk{font-family:var(--led-font);color:var(--led);width:30px}
+.fr .fa{flex:1;font-family:var(--display);font-size:17px;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr .fv{font-family:var(--led-font);color:var(--muted)}
+.fr.o1{background:var(--home-soft);border-color:var(--home)} .fr.o2{background:var(--away-soft);border-color:var(--away)}
+/* jeopardy */
+.jb{overflow:auto}
+.jb table{width:100%;border-collapse:separate;border-spacing:5px;table-layout:fixed}
+.jb th{font-family:var(--display);font-size:14px;text-transform:uppercase;letter-spacing:.04em;background:#07091a;border:1px solid var(--line);border-radius:6px;padding:8px 6px;min-height:44px;line-height:1.1}
+.jb td{padding:0;height:52px;vertical-align:middle}
+.jcell{width:100%;height:52px;font-family:var(--led-font);font-size:22px;color:var(--led);background:#0d1430;border:1px solid var(--line);text-shadow:0 0 10px rgba(255,176,103,.4)}
+.jcell:hover:not(.off){border-color:var(--orange);background:rgba(255,122,26,.14)}
+.jcell.off{cursor:default;opacity:.7}
+.jd{border-radius:6px;background:var(--tile);color:var(--tile-fg);font-size:11px;text-align:center;line-height:1.15;padding:4px!important;display:table-cell;overflow:hidden}
+.jd .k{display:block;font-family:var(--led-font);color:var(--muted);font-size:10px}
+.jd.o1{background:var(--home-soft);color:var(--fg)} .jd.o2{background:var(--away-soft);color:var(--fg)} .jd.o3{background:var(--tile);color:var(--muted)}
+.cluebox{background:#07091a;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:8px;min-height:92px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.cluebox.clue{border-color:var(--orange)}
+.cluebox .cluetext{font-family:var(--display);font-size:clamp(26px,4vw,40px);line-height:1.05;text-transform:uppercase}
+.cluebox .ans{color:var(--good)}
+.cluebox.idle{min-height:48px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -216,16 +249,23 @@ button:disabled{opacity:.4;cursor:not-allowed}
     </div>
 
     <div class="panel col">
+      <div class="eyebrow">Game type</div>
+      <div class="gtypes" id="gtypes">
+        <button type="button" class="gt on" data-g="race"><b>Race</b><span>Same list, same clock. Most answers wins.</span></button>
+        <button type="button" class="gt" data-g="feud"><b>Top-10 Feud</b><span>Ranked list. #1 pays the most. First to type an answer owns it.</span></button>
+        <button type="button" class="gt" data-g="jeop"><b>Jeopardy</b><span>5 categories × 5 clues. Pick a square; first correct answer takes the points.</span></button>
+      </div>
       <div class="row between">
-        <div class="eyebrow">Pick a quiz <span id="libCount" class="pill"></span></div>
+        <div class="eyebrow"><span id="pickLbl">Pick a quiz</span> <span id="libCount" class="pill"></span></div>
         <label style="flex-direction:row;align-items:center;gap:8px">Clock <select id="timeSel"></select></label>
       </div>
-      <div class="row"><input id="libSearch" placeholder="Search quizzes…" style="flex:1"><div class="chips" id="libChips"></div></div>
-      <div id="lib" class="lib"></div>
-      <div class="row between" style="align-items:flex-start">
+      <div id="quizPick" class="col">
+        <div class="row"><input id="libSearch" placeholder="Search quizzes…" style="flex:1"><div class="chips" id="libChips"></div></div>
+        <div id="lib" class="lib"></div>
         <div class="qdesc" id="selDesc"></div>
-        <button id="btnPractice" class="ghost">Practice solo</button>
       </div>
+      <div class="hint" id="jeopNote" hidden>Five categories are drawn at random from the year-and-clue quizzes (champions, MVPs, draft picks, arenas, nicknames…). Squares are worth 200–1000. A clue stays up for 20 seconds; whoever answers it picks next.</div>
+      <div class="row"><button id="btnPractice" class="ghost">Practice solo</button></div>
       <details>
         <summary class="hint" style="cursor:pointer">Add your own quiz</summary>
         <div class="col" style="margin-top:8px">
@@ -275,7 +315,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
       <input id="themInput" class="typebox" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Player 2 types here…" hidden>
       <div class="last" id="themLast"></div>
       <div id="themAnswers" hidden></div>
-      <div class="oppbig" id="oppBig"><div class="led" id="oppCount">0</div><div class="hint">answers found so far. What they typed stays hidden until the buzzer.</div></div>
+      <div class="oppbig" id="oppBig"><div class="led" id="oppCount">0</div><div class="hint">answers so far. Shaded cells show which ones — the words stay hidden until the buzzer.</div></div>
     </div>
   </div>
 </section>
@@ -297,7 +337,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
   </div>
   <div class="panel">
     <div class="eyebrow">Answer sheet</div>
-    <div class="hint">Blue: you got it. Red: you missed it.</div>
+    <div class="hint" id="resKey">Blue: you got it. Red: you missed it.</div>
     <div id="resAnswers" style="margin-top:8px"></div>
   </div>
 </section>
@@ -306,6 +346,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <script src="quizzes.js"></script>
 <script src="quizzes2.js"></script>
 <script src="quizzes3.js"></script>
+<script src="quizzes4.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
