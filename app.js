@@ -35,7 +35,7 @@ async function loadMe(){
 function renderMe(){
   $('meBox').hidden=!me; $('guestBox').hidden=!!me;
   if(!sb){ $('guestHint').textContent='Ranked mode is off (no database connected).'; $('btnOpenAuth').hidden=true; }
-  if(me){ $('meUser').textContent=me.username; $('meElo').textContent=me.elo; $('meRec').textContent=`${me.wins}W · ${me.losses}L · ${me.draws}D`;
+  if(me){ $('meUser').textContent=me.username; $('meAv').textContent=(me.username||'?')[0].toUpperCase(); $('meElo').textContent=me.elo; $('meRec').textContent=`${me.wins}W · ${me.losses}L · ${me.draws}D`;
     if(!$('myName').value.trim()){ $('myName').value=me.username; } }
   loadLeaderboard(); loadHistory(); setStartable();
 }
@@ -121,7 +121,8 @@ function renderLib(){
   const list=QUIZZES.filter(q=>(gtype!=='feud'||RANKED.has(q.id))&&(libCat==='All'||(libCat==='Mine'?q.custom:(q.cat||'Lists')===libCat)) && (!q0||(q.title+' '+(q.desc||'')).toLowerCase().includes(q0)));
   $('libCount').textContent=list.length+' / '+QUIZZES.length;
   list.forEach(q=>{ const b=document.createElement('button'); b.className='q'+(q.id===selected?' on':''); b.type='button';
-    b.innerHTML=`<span class="n">${esc(q.title)}</span><span class="d">${esc(q.desc||'')}</span><small>${quizSize(q)} answers · ${fmt(q.t||300)} · ${esc(q.cat||(q.custom?'Mine':'Lists'))}</small>`;
+    const cat=q.cat||(q.custom?'Mine':'Lists'); b.dataset.cat=cat;
+    b.innerHTML=`<span class="n">${esc(q.title)}</span><span class="d">${esc(q.desc||'')}</span><small><span class="cat">${esc(cat)}</span><span>·</span><span>${quizSize(q)} ${q.layout==='jeop'?'clues':'answers'}</span><span>·</span><span>${fmt(q.t||300)}</span></small>`;
     b.onclick=()=>{ selected=q.id; fillTimes(q.t||300); renderLib(); }; lib.appendChild(b); });
   const sel=QUIZZES.find(q=>q.id===selected); $('selDesc').textContent=sel?(sel.desc||sel.title):'';
 }
@@ -432,6 +433,6 @@ $('btnRematch').onclick=()=>{ if(game&&game.solo){ const gm=game.mode; const q=g
   $('results').hidden=true; $('lobby').hidden=false; game=null; if(mode==='guest') send({t:'rematch'}); setStartable(); $('btnStart').focus(); };
 
 // ===================== BOOT =====================
-fillTimes(QUIZZES[0].t); renderLib(); setStartable(); renderMe(); loadMe();
+fillTimes(QUIZZES[0].t); renderLib(); setStartable(); renderMe(); loadMe(); $('footLine').textContent=`Hoop Versus · ${QUIZZES.length} NBA quizzes · 3 game modes · Elo ranked`;
 $('netStatus').textContent = netAvailable() ? 'Ready to host or join.' : 'Online play unavailable (no database connected). Split-screen works.';
 const h=location.hash.match(/^#join-([A-Za-z0-9]{4})$/); if(h){ $('joinCode').value=h[1].toUpperCase(); setTimeout(()=>joinGame(h[1]),300); }
