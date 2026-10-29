@@ -44,9 +44,9 @@ async function loadLeaderboard(){
   const {data,error}=await sb.from('profiles').select('id,username,elo,wins,losses,draws').order('elo',{ascending:false}).limit(25);
   if(error||!data){ $('lbBody').textContent='Leaderboard unavailable.'; return; }
   if(!data.length){ $('lbBody').textContent='Nobody ranked yet. Be first.'; return; }
-  let html='<table class="lbt"><tr><th>#</th><th>Player</th><th>W-L</th><th style="text-align:right">Elo</th></tr>';
-  data.forEach((p,i)=>{ html+=`<tr class="${me&&p.id===me.id?'me':''}"><td class="r">${i+1}</td><td class="u">${esc(p.username)}</td><td class="r">${p.wins}-${p.losses}</td><td class="e">${p.elo}</td></tr>`; });
-  $('lbBody').innerHTML=html+'</table>';
+  let html='<div class="lbh"><span>#</span><span>Player</span><span>W-L</span><span>Elo</span></div>';
+  data.forEach((p,i)=>{ html+=`<div class="lbr ${me&&p.id===me.id?'me':''}"><span class="r">${i+1}</span><span class="u" title="${esc(p.username)}">${esc(p.username)}</span><span class="wl">${p.wins}-${p.losses}</span><span class="e">${p.elo}</span></div>`; });
+  $('lbBody').innerHTML=html;
 }
 async function loadHistory(){
   if(!sb||!me){ $('histBody').textContent='Sign in to track your games.'; return; }

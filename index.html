@@ -194,6 +194,21 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .cluebox .cluetext{font-family:var(--display);font-size:clamp(26px,4vw,40px);line-height:1.05;text-transform:uppercase}
 .cluebox .ans{color:var(--good)}
 .cluebox.idle{min-height:48px}
+
+.lobbyGrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}
+@media (max-width:900px){.lobbyGrid{grid-template-columns:1fr}}
+.lib{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));max-height:54vh}
+.q{padding:9px 11px;gap:2px}
+.q .d{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lbr{display:grid;grid-template-columns:26px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:7px 10px;border-radius:8px;font-size:14px}
+.lbr+.lbr{margin-top:3px}
+.lbr .r{font-family:var(--led-font);color:var(--muted)}
+.lbr .u{font-family:var(--display);font-size:17px;letter-spacing:.03em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbr .wl{font-size:12px;color:var(--muted);font-family:var(--led-font)}
+.lbr .e{font-family:var(--led-font);color:var(--led);font-size:16px}
+.lbr.me{background:rgba(255,122,26,.12);box-shadow:inset 0 0 0 1px rgba(255,122,26,.45)}
+.lbh{display:grid;grid-template-columns:26px 1fr auto auto;gap:10px;padding:0 10px 4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.me .u{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -229,66 +244,70 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
 <!-- LOBBY -->
 <section id="lobby" class="col">
-  <div class="grid3">
-    <div class="panel col">
-      <div class="eyebrow">Matchup</div>
-      <div id="netStatus" class="hint">Connecting…</div>
-      <label>Display name <input id="myName" maxlength="18" placeholder="Player"></label>
-      <div class="row">
-        <button id="btnHost" class="hot">Host a game</button>
-        <span class="hint">or join</span>
-        <input id="joinCode" maxlength="4" placeholder="CODE" style="width:120px;font-family:var(--led-font);text-transform:uppercase;letter-spacing:.3em;font-size:18px">
-        <button id="btnJoin">Join</button>
-      </div>
-      <div id="roomBox" hidden class="col">
-        <div class="eyebrow">Room code</div>
-        <div class="row"><div id="roomCode" class="code"></div><button id="btnCopy" class="ghost">Copy invite link</button><button id="btnLeave" class="ghost">Leave</button></div>
-        <div id="peerLine" class="hint">Waiting for an opponent to join…</div>
-      </div>
-      <div class="hint">Playing on one screen? <button id="btnLocal" class="ghost sm">Split-screen mode</button> (unranked)</div>
-    </div>
-
-    <div class="panel col">
-      <div class="eyebrow">Game type</div>
-      <div class="gtypes" id="gtypes">
-        <button type="button" class="gt on" data-g="race"><b>Race</b><span>Same list, same clock. Most answers wins.</span></button>
-        <button type="button" class="gt" data-g="feud"><b>Top-10 Feud</b><span>Ranked list. #1 pays the most. First to type an answer owns it.</span></button>
-        <button type="button" class="gt" data-g="jeop"><b>Jeopardy</b><span>5 categories × 5 clues. Pick a square; first correct answer takes the points.</span></button>
-      </div>
-      <div class="row between">
-        <div class="eyebrow"><span id="pickLbl">Pick a quiz</span> <span id="libCount" class="pill"></span></div>
-        <label style="flex-direction:row;align-items:center;gap:8px">Clock <select id="timeSel"></select></label>
-      </div>
-      <div id="quizPick" class="col">
-        <div class="row"><input id="libSearch" placeholder="Search quizzes…" style="flex:1"><div class="chips" id="libChips"></div></div>
-        <div id="lib" class="lib"></div>
-        <div class="qdesc" id="selDesc"></div>
-      </div>
-      <div class="hint" id="jeopNote" hidden>Five categories are drawn at random from the year-and-clue quizzes (champions, MVPs, draft picks, arenas, nicknames…). Squares are worth 200–1000. A clue stays up for 20 seconds; whoever answers it picks next.</div>
-      <div class="row"><button id="btnPractice" class="ghost">Practice solo</button></div>
-      <details>
-        <summary class="hint" style="cursor:pointer">Add your own quiz</summary>
-        <div class="col" style="margin-top:8px">
-          <input id="customTitle" placeholder="Quiz title">
-          <textarea id="customList" placeholder="One answer per line. Alternates with a slash, an optional clue before a pipe:&#10;2016 | Cleveland Cavaliers / Cavs&#10;Los Angeles Lakers / Lakers"></textarea>
-          <div class="row"><button id="btnAddCustom" class="ghost">Add quiz</button><span class="hint">Finish a Sporcle quiz, copy its answer column, paste it here.</span></div>
+  <div class="lobbyGrid">
+    <div class="col main">
+      <div class="panel col">
+        <div class="eyebrow">Game type</div>
+        <div class="gtypes" id="gtypes">
+          <button type="button" class="gt on" data-g="race"><b>Race</b><span>Same list, same clock. Most answers wins.</span></button>
+          <button type="button" class="gt" data-g="feud"><b>Top-10 Feud</b><span>Ranked list. #1 pays the most. First to type an answer owns it.</span></button>
+          <button type="button" class="gt" data-g="jeop"><b>Jeopardy</b><span>5 categories × 5 clues. Pick a square; first correct answer takes the points.</span></button>
         </div>
-      </details>
-      <div class="row between" id="modeRow">
-        <div class="eyebrow">Mode</div>
-        <div class="tabs" style="flex:1;max-width:320px"><button id="modeRanked" class="sm">Ranked</button><button id="modeCasual" class="sm on">Unranked</button></div>
+        <div class="row between" style="margin-top:4px">
+          <div class="eyebrow"><span id="pickLbl">Pick a quiz</span> <span id="libCount" class="pill"></span></div>
+          <label style="flex-direction:row;align-items:center;gap:8px">Clock <select id="timeSel"></select></label>
+        </div>
+        <div id="quizPick" class="col">
+          <div class="row"><input id="libSearch" placeholder="Search quizzes…" style="flex:1;min-width:200px"><div class="chips" id="libChips"></div></div>
+          <div id="lib" class="lib"></div>
+          <div class="qdesc" id="selDesc"></div>
+        </div>
+        <div class="hint" id="jeopNote" hidden>Five categories are drawn at random from the year-and-clue quizzes (champions, MVPs, draft picks, arenas, nicknames…). Squares are worth 200–1000. A clue stays up for 20 seconds; whoever answers it picks next.</div>
+        <details>
+          <summary class="hint" style="cursor:pointer">Add your own quiz</summary>
+          <div class="col" style="margin-top:8px">
+            <input id="customTitle" placeholder="Quiz title">
+            <textarea id="customList" placeholder="One answer per line. Alternates with a slash, an optional clue before a pipe:&#10;2016 | Cleveland Cavaliers / Cavs&#10;Los Angeles Lakers / Lakers"></textarea>
+            <div class="row"><button id="btnAddCustom" class="ghost">Add quiz</button><span class="hint">Finish a Sporcle quiz, copy its answer column, paste it here.</span></div>
+          </div>
+        </details>
       </div>
-      <div class="hint" id="modeHint"></div>
-      <button id="btnStart" class="hot" disabled>Tip off</button>
-      <div id="startHint" class="hint"></div>
     </div>
 
-    <div class="panel col lb">
-      <div class="row between"><div class="eyebrow">Leaderboard</div><span class="pill" id="lbMode">Elo</span></div>
-      <div id="lbBody" class="hint">Loading…</div>
-      <div class="eyebrow" style="margin-top:6px">Your recent games</div>
-      <div id="histBody" class="hint">Sign in to track your games.</div>
-    </div>
+    <aside class="col side">
+      <div class="panel col">
+        <div class="eyebrow">Matchup</div>
+        <div id="netStatus" class="hint">Connecting…</div>
+        <label>Display name <input id="myName" maxlength="18" placeholder="Player"></label>
+        <div class="row">
+          <button id="btnHost" class="hot">Host a game</button>
+          <span class="hint">or join</span>
+          <input id="joinCode" maxlength="4" placeholder="CODE" style="width:110px;font-family:var(--led-font);text-transform:uppercase;letter-spacing:.3em;font-size:18px">
+          <button id="btnJoin">Join</button>
+        </div>
+        <div id="roomBox" hidden class="col">
+          <div class="eyebrow">Room code</div>
+          <div class="row"><div id="roomCode" class="code"></div></div>
+          <div class="row"><button id="btnCopy" class="ghost sm">Copy invite link</button><button id="btnLeave" class="ghost sm">Leave</button></div>
+          <div id="peerLine" class="hint">Waiting for an opponent to join…</div>
+        </div>
+        <div class="row between" id="modeRow">
+          <div class="eyebrow">Mode</div>
+          <div class="tabs" style="flex:1;max-width:260px"><button id="modeRanked" class="sm">Ranked</button><button id="modeCasual" class="sm on">Unranked</button></div>
+        </div>
+        <div class="hint" id="modeHint"></div>
+        <div class="row"><button id="btnStart" class="hot" disabled style="flex:1">Tip off</button><button id="btnPractice" class="ghost">Practice solo</button></div>
+        <div id="startHint" class="hint"></div>
+        <div class="hint">One screen? <button id="btnLocal" class="ghost sm">Split-screen</button> (unranked)</div>
+      </div>
+
+      <div class="panel col lb">
+        <div class="row between"><div class="eyebrow">Leaderboard</div><span class="pill" id="lbMode">Elo</span></div>
+        <div id="lbBody" class="hint">Loading…</div>
+        <div class="eyebrow" style="margin-top:6px">Your recent games</div>
+        <div id="histBody" class="hint">Sign in to track your games.</div>
+      </div>
+    </aside>
   </div>
 </section>
 
